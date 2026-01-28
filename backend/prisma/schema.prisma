@@ -1,0 +1,374 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  name            String?
+  email           String    
+  password        String
+  role            Role      @default(ADMIN)
+  companyId       Int?      
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  company         Company?  @relation(fields: [companyId], references: [id])
+  ownedCompanies  Company[] @relation("CompanyOwner") // admin sebagai pemilik company
+  tokens          UserToken[]  // relasi ke tabel UserToken
+  Employee        Employee[]
+  approvedLeaves  LeaveRequest[] // relasi untuk approver
+
+  @@map("users")
+  @@unique([companyId, email])
+}
+
+model Company {
+  id          Int      @id @default(autoincrement())
+  companyName String   @map("company_name")
+  ownerUserId Int      @map("owner_user_id")
+  latitude    Decimal? @db.Decimal(10, 8) // contoh: -6.20000000
+  longitude   Decimal? @db.Decimal(11, 8) // contoh: 106.81666667
+  radius      Int      @default(200)
+  logo        String?  @db.VarChar(255) // hanya simpan nama file
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relasi ke User (owner)
+  owner          User            @relation("CompanyOwner", fields: [ownerUserId], references: [id])
+  
+  members        User[]
+  Employee       Employee[]
+  ScheduleGroup  ScheduleGroup[]
+  WorkSchedule   WorkSchedule[]
+  leaveTypes     LeaveType[]     
+  transactions   Transaction[]
+  subscriptions  Subscription[]
+
+  @@map("companies")
+}
+
+model UserToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiredAt DateTime @map("expired_at") @db.Timestamptz(6)
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("user_tokens")
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  EMPLOYEE
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  RESIGNED
+}
+
+model Employee {
+  id              Int            @id @default(autoincrement())
+  userId          Int            @map("user_id")
+  companyId       Int            @map("company_id")
+  employeeCode    String         @unique @map("employee_code")
+  fullName        String         @map("full_name")
+  dateOfBirth     DateTime?      @map("date_of_birth") @db.Date
+  nik             String         
+  gender          String
+  mobileNumber    String?        @map("mobile_number")
+  address         String?
+  position        String
+  department      String
+  photo           String?        @db.VarChar(255) // hanya simpan nama file
+  hireDate        DateTime       @map("hire_date") @db.Date
+  status          EmployeeStatus @default(ACTIVE)
+  promotionHistory String?       @map("promotion_history")
+  scheduleGroupId Int?           @map("schedule_group_id")
+  
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relasi
+  user          User            @relation(fields: [userId], references: [id])
+  company       Company         @relation(fields: [companyId], references: [id])
+  scheduleGroup ScheduleGroup?  @relation(fields: [scheduleGroupId], references: [id])
+  leaveRequests LeaveRequest[]  // relasi ke LeaveRequest
+  Attendance Attendance[]
+
+  @@map("employees")
+  @@unique([companyId, nik])
+}
+
+model ScheduleGroup {
+  id          Int             @id @default(autoincrement())
+  companyId   Int             @map("company_id")
+  nameOfShift   String        @map("name_of_shift")
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime?       @map("deleted_at") @db.Timestamptz(6)
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  workSchedules WorkSchedule[]
+  employees     Employee[]
+
+  @@map("schedule_groups")
+  @@unique([companyId, nameOfShift])
+}
+
+model WorkSchedule {
+  id             Int       @id @default(autoincrement())
+  companyId      Int       @map("company_id")
+  scheduleGroupId Int      @map("schedule_group_id")
+  dayOfWeek      DayOfWeek
+  startTime      String    @map("start_time")
+  breakStart     String?   @map("break_start")
+  breakEnd       String?   @map("break_end")
+  endTime        String    @map("end_time")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  scheduleGroup ScheduleGroup @relation(fields: [scheduleGroupId], references: [id])
+  Attendance Attendance[]
+
+  @@map("work_schedules")
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model LeaveRequest {
+  id              Int          @id @default(autoincrement())
+  employeeId      Int          @map("employee_id")
+  leaveTypeId     Int          @map("leave_type_id")
+  startDate       DateTime     @map("start_date") @db.Date
+  endDate         DateTime     @map("end_date") @db.Date
+  totalDays       Int          @map("total_days")
+  reason          String       @db.Text
+  status          LeaveStatus  @default(PENDING)
+  approvedBy      Int?         @map("approved_by")
+  approvedAt      DateTime?    @map("approved_at") @db.Timestamptz(6)
+  rejectionReason String?      @map("rejection_reason") @db.Text
+  attachment      String?      @db.VarChar(255)
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  employee        Employee     @relation(fields: [employeeId], references: [id])
+  leaveType       LeaveType    @relation(fields: [leaveTypeId], references: [id])
+  approver        User?        @relation(fields: [approvedBy], references: [id])
+
+  @@map("leave_requests")
+}
+
+model LeaveType {
+  id           Int      @id @default(autoincrement())
+  companyId    Int      @map("company_id")
+  name         String
+  maxDays      Int      @map("max_days")
+  description  String?  @db.Text
+  isPaid       Boolean  @default(true) @map("is_paid")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  company       Company        @relation(fields: [companyId], references: [id])
+  leaveRequests LeaveRequest[]
+
+  @@map("leave_types")
+  @@unique([companyId, name])
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model Attendance {
+  id               Int             @id @default(autoincrement())
+  employeeId       Int             @map("employee_id")
+  workScheduleId   Int?            @map("work_schedule_id")
+  date             DateTime        @db.Date
+  checkInTime      DateTime?       @map("check_in_time")
+  checkOutTime     DateTime?       @map("check_out_time")
+  workType         WorkType        @map("work_type")
+  latitude         Decimal?        @db.Decimal(10, 8)
+  longitude        Decimal?        @db.Decimal(11, 8)
+  proof            String?         @db.VarChar(255)
+  locationStatus   LocationStatus? @map("location_status")
+  attendanceStatus AttendanceStatus? @map("attendance_status")
+  approvalStatus   ApprovalStatus  @default(PENDING) @map("approval_status")
+  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt        DateTime?       @map("deleted_at") @db.Timestamptz(6)
+
+  employee       Employee      @relation(fields: [employeeId], references: [id])
+  workSchedule   WorkSchedule? @relation(fields: [workScheduleId], references: [id])
+
+  @@unique([employeeId, date])
+  @@map("attendances")
+}
+
+enum WorkType {
+  WFO
+  WFA
+  HYBRID
+  ABSENT
+}
+
+enum LocationStatus {
+  INSIDE
+  OUTSIDE
+}
+
+enum AttendanceStatus {
+  ONTIME
+  LATE
+  ALPHA
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Paket: Subscription (paket bulanan) atau Pay As You Go (per feature)
+enum PlanType {
+  SUBSCRIPTION
+  PAYGO
+  TRIAL
+}
+
+// Fitur yang ditawarkan
+enum FeatureType {
+  ALL_FEATURES // paket subscription
+  ATTENDANCE
+  LEAVE_PERMISSION // untuk leaveType & leaveRequest
+  WORKSCHEDULE // untuk schedule group & work schedule 
+}
+
+enum TransactionType {
+  PURCHASE
+  RENEWAL
+}
+
+enum TransactionStatus {
+  PENDING
+  PAID
+  FAILED
+  EXPIRED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+model Plan {
+  id           Int          @id @default(autoincrement())
+  name         String
+  planType     PlanType     @map("plan_type")
+  featureType  FeatureType  @map("feature_type")
+  description  String?
+  detail       String?      @db.Text
+  price        Int
+  maxEmployees Int?         @map("max_employees")
+  durationInDays Int        @default(30) @map("duration_in_days")
+
+  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  // RELATIONS
+  subscriptions Subscription[]
+  transactions  Transaction[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id          Int                 @id @default(autoincrement())
+  companyId   Int                 @map("company_id")
+  planId      Int                 @map("plan_id")
+  startDate   DateTime            @map("start_date") @db.Timestamptz(6)
+  endDate     DateTime            @map("end_date") @db.Timestamptz(6)
+  status      SubscriptionStatus  @default(ACTIVE)
+  autoRenew   Boolean             @default(false) @map("auto_renew")
+
+  createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime?           @map("deleted_at") @db.Timestamptz(6)
+
+  // RELATIONS
+  company     Company             @relation(fields: [companyId], references: [id])
+  plan        Plan                @relation(fields: [planId], references: [id])
+  transactions Transaction[]
+
+  @@map("subscriptions")
+}
+
+model Transaction {
+  id              Int               @id @default(autoincrement())
+  companyId       Int               @map("company_id")
+  subscriptionId  Int?              @map("subscription_id")
+  planId          Int               @map("plan_id")
+  type            TransactionType
+  status          TransactionStatus @default(PENDING)
+  amount          Int
+  
+  // Xendit Integration
+  externalId      String            @unique @map("external_id")       // id unique untuk payment
+  xenditInvoiceId String?           @unique @map("xendit_invoice_id") // unique untuk callback
+  invoiceUrl      String?           @map("invoice_url")
+  paymentMethod   String?           @map("payment_method")            // metode pembayaran (OVO, DANA, VA, QRIS, dll)
+  expiryDate      DateTime?         @map("expiry_date") @db.Timestamptz(6) // untuk menyimpan batas waktu pembayaran
+  
+  paidAt          DateTime?         @map("paid_at") @db.Timestamptz(6)
+  
+  // Metadata untuk callback (simpan response dari Xendit)
+  metadata        Json?             @default("{}") // untuk fleksibilitas
+  
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime?         @map("deleted_at") @db.Timestamptz(6)
+  
+  // RELATIONS
+  company         Company           @relation(fields: [companyId], references: [id])
+  subscription    Subscription?     @relation(fields: [subscriptionId], references: [id])
+  plan            Plan              @relation(fields: [planId], references: [id])
+  
+  @@map("transactions")
+}
+

@@ -1,0 +1,9 @@
+# Dependency (Sangat berat)
+node_modules/
+
+# Environment Variables (Data Rahasia - JANGAN di-upload)
+.env
+.env.local
+.env.production
+.env.development
+next.config.mjs

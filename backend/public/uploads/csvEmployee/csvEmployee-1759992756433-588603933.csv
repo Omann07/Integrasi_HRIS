@@ -1,0 +1,3 @@
+name,email,password,fullName,nik,gender,mobileNumber,address,position,department,hireDate,dateOfBirth,promotionHistory,scheduleGroupId
+john_doe,john.doe@company.com,12345678,John Doe,1234567890123456,MALE,081234567890,"Jl. Merdeka No. 123, Jakarta",Software Engineer,IT,2024-01-15,1990-05-20,"Junior Developer (2024)",1
+jane_smith,jane.smith@company.com,12345678,Jane Smith,6543210987654321,FEMALE,087654321098,"Jl. Sudirman No. 456, Bandung",Product Manager,Marketing,2024-02-01,1992-08-15,"Senior Associate (2024)",2

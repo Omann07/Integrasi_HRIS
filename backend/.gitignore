@@ -1,0 +1,16 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+/src/generated/prisma
+
+auth.rest
+company.rest
+employee.rest
+scheduleGroup.rest
+workSchedule.rest
+leaveType.rest
+leaveRequest.rest
+attendance.rest
+plan.rest
+payment.rest

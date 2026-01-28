@@ -1,0 +1,301 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ----------------------------------- */
+/*               ROOT VARS            */
+/* ----------------------------------- */
+
+:root {
+  /* Colors */
+  --color-primary: #1e3a5f;
+  --color-secondary: #7ca5bf;
+  --color-accent: #ba3c54;
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-gray-600: #4b5563;
+  --text-muted: #6b7280;
+
+  /* Gradients */
+  --gradient-blue: linear-gradient(to bottom, #7ca5bf, #1e3a5f);
+
+  /* Components */
+  --input-border: #6b7280;
+  --input-focus: rgba(37, 99, 235, 0.4);
+  --btn-gradient-start: #1e3a5f;
+  --btn-gradient-end: #7ca5bf;
+}
+
+/* ----------------------------------- */
+/*            GLOBAL RESETS            */
+/* ----------------------------------- */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f3f3f3;
+  color: var(--color-gray-900);
+  height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* ----------------------------------- */
+/*           SCROLLBAR STYLE           */
+/* ----------------------------------- */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #e5e7eb;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* ----------------------------------- */
+/*            FORM COMPONENTS          */
+/* ----------------------------------- */
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border 0.2s, box-shadow 0.2s;
+  background: white;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--input-focus);
+  outline: none;
+}
+
+input:read-only {
+  background: #f9fafb;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: white;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* ----------------------------------- */
+/*            MISC ELEMENTS            */
+/* ----------------------------------- */
+
+a {
+  transition: color 0.2s ease-in-out;
+}
+
+img {
+  transition: opacity 0.3s ease-in-out;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+input[type="checkbox"] {
+  cursor: pointer;
+}
+
+iframe {
+  border: none;
+}
+
+/* ----------------------------------- */
+/*          MODAL & DROPDOWN           */
+/* ----------------------------------- */
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* ----------------------------------- */
+/*              UPLOAD BOX             */
+/* ----------------------------------- */
+
+.upload-box {
+  transition: 0.2s ease;
+}
+
+.upload-box:hover {
+  background-color: #f3f4f6;
+}
+
+/* ----------------------------------- */
+/*            CARD SHADOW              */
+/* ----------------------------------- */
+
+.card-shadow {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* ----------------------------------- */
+/*            TYPOGRAPHY               */
+/* ----------------------------------- */
+
+h1,
+h2,
+h3,
+label {
+  font-weight: 600;
+}
+
+.transition-smooth {
+  transition: all 0.25s ease;
+}
+
+/* ================================================================= */
+/*                      DASHBOARD EXTRA STYLES                       */
+/* ================================================================= */
+
+/* Card default */
+.card {
+  @apply bg-white rounded-xl shadow p-4;
+}
+
+/* Title text in Card */
+.card-title {
+  @apply font-semibold text-gray-700;
+}
+
+/* Number value */
+.card-value {
+  @apply text-2xl font-bold text-gray-900;
+}
+
+/* Full dashboard container */
+.dashboard-container {
+  @apply flex flex-col flex-1 overflow-y-auto bg-gray-100;
+}
+
+/* Grid for the top stats cards */
+.dashboard-grid {
+  @apply p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4;
+}
+
+/* Table widgets */
+.table-box {
+  @apply bg-white p-4 rounded-xl shadow;
+}
+
+.table-box h4 {
+  @apply font-bold mb-2 text-gray-800;
+}
+
+.table-box ol {
+  @apply text-sm space-y-1 text-gray-700;
+}
+
+/* Chart placeholder */
+.chart-box {
+  @apply bg-white h-56 rounded-xl shadow flex items-center justify-center text-gray-400 text-sm;
+}
+
+/* Scrollbar improvement */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 10px;
+}
+
+.modal-content {
+  @apply bg-white rounded-lg shadow-xl w-full max-w-md p-6 overflow-y-auto max-h-[90vh];
+}
+
+.modal-header {
+  @apply relative mb-4 flex justify-center items-center;
+}
+
+.modal-back-btn {
+  @apply absolute left-0 text-gray-700 hover:text-gray-900;
+}
+
+.modal-title {
+  @apply text-lg font-semibold text-gray-800;
+}
+
+.modal-avatar {
+  @apply flex justify-center mb-5;
+}
+
+.avatar-img {
+  @apply rounded-full border border-gray-300 object-cover;
+}
+
+.input-label {
+  @apply block text-sm font-semibold text-gray-700 mb-1;
+}
+
+.input-icon {
+  @apply w-4 h-4 text-gray-400 absolute right-3 top-9 pointer-events-none;
+}
+
+.modal-footer {
+  @apply flex justify-end mt-6;
+}
+
+.modal-delete {
+  @apply bg-white rounded-lg shadow-xl w-[350px] p-6 text-center;
+}
+
+.modal-delete-title {
+  @apply text-lg font-semibold mb-6 text-gray-800;
+}
+
+.modal-delete-actions {
+  @apply flex justify-center space-x-4;
+}
+
+.btn-cancel {
+  @apply px-5 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100;
+}
+
+.btn-danger {
+  @apply px-5 py-2 rounded-md text-white bg-red-600 hover:bg-red-700;
+}
