@@ -249,6 +249,7 @@ export async function updateWorkSchedule(req: Request, res: Response) {
         const userId = (req as any).user.id;
         const { id } = req.params;
         const {
+            scheduleGroupId,
             dayOfWeek,
             startTime,
             breakStart,
@@ -325,6 +326,7 @@ export async function updateWorkSchedule(req: Request, res: Response) {
 
         // Siapkan data yang akan diupdate
         const updateData: any = {};
+        if (scheduleGroupId !== undefined) updateData.scheduleGroupId = scheduleGroupId;
         if (dayOfWeek !== undefined) updateData.dayOfWeek = dayOfWeek;
         if (startTime !== undefined) updateData.startTime = startTime;
         if (breakStart !== undefined) updateData.breakStart = breakStart;

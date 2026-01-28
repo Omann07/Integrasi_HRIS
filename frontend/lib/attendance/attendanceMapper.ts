@@ -58,14 +58,19 @@ export interface AttendanceUI {
   proofUrl: string | null;
 }
 
-const formatToLocalTime = (isoString: string | null) => {
-  if (!isoString) return "-";
-  const date = new Date(isoString);
-  if (isNaN(date.getTime())) return "-";
-  return date.toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+const formatToLocalTime = (str: string | null) => {
+  if (!str || str === "-") return "-";
+
+  // CEK APAKAH FORMATNYA JAM MURNI (HH:mm:ss)
+  // Karena backend Anda mengirim req.formatWIB(..., "HH:mm:ss")
+  if (str.includes(":") && str.length <= 8) {
+    return str.substring(0, 5); // Mengambil "HH:mm" dari "HH:mm:ss"
+  }
+
+  // Jika formatnya ISO Date lengkap
+  const date = new Date(str);
+  if (isNaN(date.getTime())) return str;
+  return date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
 };
 
 export const mapAttendanceToUI = (

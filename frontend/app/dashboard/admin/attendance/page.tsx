@@ -91,7 +91,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     const combineDateAndTime = (timeStr: string) => {
       if (!timeStr) return ""; // Kirim string kosong jika tidak diisi
       // Menghasilkan format: 2026-01-27T08:00:00.000Z
-      return `${formData.date}T${timeStr}:00.000Z`;
+      return `${formData.date}T${timeStr}:00.000`;
     };
 
     data.append("checkInTime", combineDateAndTime(formData.checkInTime));

@@ -15,11 +15,11 @@ export const updateMyShift = async (
   id: number,
   data: { nameOfShift: string }
 ) => {
-  return api.patch(`/schedule-group/update-schedule-group/${id}`, data);
+  return api.patch(`/schedule-group/update-shift/${id}`, data);
 };
 
 export const deleteMyShift = async (id: number) => {
-  return api.delete(`/schedule-group/delete-schedule-group/${id}`);
+  return api.delete(`/schedule-group/delete-shift/${id}`);
 };
 
 // employee hanya view

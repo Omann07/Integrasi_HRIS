@@ -216,17 +216,28 @@ export async function createAttendance(req: Request, res: Response) {
             return res.status(404).json({ message: "Employee tidak ditemukan" });
         }
 
-        /* ==============================
-           2. WAKTU (FULL WIB)
-        ============================== */
-        const nowWIB: Date = req.nowWIB;
-        const todayDay = req.todayWIB.toUpperCase(); // SATURDAY
+        // 2. Ambil waktu dari middleware
+        const nowWIB = req.nowWIB;
+        const todayDay = req.todayWIB.toUpperCase(); // "MONDAY", dst.
 
+        // Tentukan tanggal absensi
         const dateStringWIB = req.formatWIB(nowWIB, "yyyy-MM-dd");
+        
+        // Buat tanggal UTC dari string tanggal WIB
+        const attendanceDateUTC = new Date(`${dateStringWIB}T00:00:00.000Z`);
+        
+        // Untuk keperluan parsing jadwal, buat juga tanggal WIB
+        const attendanceDateWIB = req.fromUTCToWIB(attendanceDateUTC);
 
-        const attendanceDateWIB = new Date(`${dateStringWIB}T00:00:00`);
-
-        const attendanceDateUTC = req.toUTCFromWIB(attendanceDateWIB);
+        console.log('Debug Time Info:', {
+            nowWIB: req.formatWIB(nowWIB, "yyyy-MM-dd HH:mm:ss"),
+            dateStringWIB,
+            attendanceDateWIB: req.formatWIB(attendanceDateWIB, "yyyy-MM-dd HH:mm:ss"),
+            attendanceDateUTC: req.formatWIB(attendanceDateUTC, "yyyy-MM-dd HH:mm:ss"),
+            todayDay,
+            attendanceDateWIB_ISO: attendanceDateWIB.toISOString(),
+            attendanceDateUTC_ISO: attendanceDateUTC.toISOString()
+        });
 
         /* ==============================
            3. Ambil jadwal hari ini

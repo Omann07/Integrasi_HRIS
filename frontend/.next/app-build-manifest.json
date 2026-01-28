@@ -21,40 +21,110 @@
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/admin/layout.js"
     ],
-    "/dashboard/admin/shift/page": [
+    "/dashboard/admin/employee/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/admin/shift/page.js"
+      "static/chunks/app/dashboard/admin/employee/page.js"
     ],
-    "/dashboard/admin/leave-type/page": [
+    "/dashboard/admin/subscriptions/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/admin/leave-type/page.js"
+      "static/chunks/app/dashboard/admin/subscriptions/page.js"
     ],
-    "/dashboard/admin/attendance/page": [
+    "/dashboard/admin/history/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/admin/attendance/page.js"
+      "static/chunks/app/dashboard/admin/history/page.js"
     ],
-    "/dashboard/admin/leave-request/page": [
+    "/profile/admin/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/admin/leave-request/page.js"
+      "static/chunks/app/profile/admin/page.js"
     ],
-    "/company/admin/page": [
+    "/auth/admin/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/company/admin/page.js"
+      "static/chunks/app/auth/admin/login/page.js"
     ],
     "/dashboard/admin/workschedule/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/admin/workschedule/page.js"
     ],
-    "/dashboard/admin/employee/page": [
+    "/auth/employee/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/admin/employee/page.js"
+      "static/chunks/app/auth/employee/login/page.js"
+    ],
+    "/dashboard/employee/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/employee/page.js"
+    ],
+    "/dashboard/employee/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/employee/layout.js"
+    ],
+    "/dashboard/employee/attendance/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/employee/attendance/page.js"
+    ],
+    "/dashboard/admin/attendance/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/admin/attendance/page.js"
+    ],
+    "/dashboard/admin/shift/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/admin/shift/page.js"
+    ],
+    "/dashboard/employee/workschedule/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/employee/workschedule/page.js"
+    ],
+    "/profile/employee/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/profile/employee/page.js"
+    ],
+    "/auth/forgot-password/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/auth/forgot-password/page.js"
+    ],
+    "/auth/employee/set-new-password/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/auth/employee/set-new-password/page.js"
+    ],
+    "/dashboard/admin/leave-request/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/admin/leave-request/page.js"
+    ],
+    "/dashboard/employee/leaves/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/employee/leaves/page.js"
+    ],
+    "/dashboard/admin/leave-type/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/admin/leave-type/page.js"
+    ],
+    "/company/admin/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/company/admin/page.js"
+    ],
+    "/company/employee/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/company/employee/page.js"
     ],
     "/_not-found/page": [
       "static/chunks/webpack.js",

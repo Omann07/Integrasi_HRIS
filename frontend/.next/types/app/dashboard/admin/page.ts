@@ -1,4 +1,4 @@
-// File: C:\Users\LENOVO\Downloads\tes-be\hris-app\app\dashboard\admin\page.tsx
+// File: C:\Users\LENOVO\Downloads\Hris\frontend\app\dashboard\admin\page.tsx
 import * as entry from '../../../../../app/dashboard/admin/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

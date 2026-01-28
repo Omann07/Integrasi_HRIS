@@ -66,11 +66,19 @@ export default function ShiftPage() {
   };
 
   const handleDelete = async () => {
-    if (!selectedShift) return;
-    await deleteMyShift(selectedShift.id);
-    setIsDeleteOpen(false);
-    setSelectedShift(null);
-    fetchShifts();
+    if (!selectedShift) return; 
+    
+    try {
+      await deleteMyShift(selectedShift.id); 
+      alert("Shift berhasil dihapus");
+      
+      setIsDeleteOpen(false); 
+      setSelectedShift(null); 
+      fetchShifts(); 
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Gagal menghapus shift");
+      setIsDeleteOpen(false);
+    }
   };
 
   return (
@@ -253,11 +261,23 @@ export default function ShiftPage() {
       {isDeleteOpen && selectedShift && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] backdrop-blur-sm">
           <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full mx-4 border">
-            <h3 className="text-xl font-bold mb-2">Delete This Employee?</h3>
-            <p className="text-gray-500 text-sm mb-6">Konfirmasi untuk menghapus data shift.</p>
+            <h3 className="text-xl font-bold mb-2 text-black">Delete This Shift?</h3>
+            <p className="text-gray-500 text-sm mb-6">
+              Konfirmasi untuk menghapus shift <strong>{selectedShift.shift}</strong>.
+            </p>
             <div className="flex gap-3">
-              <button onClick={() => setIsDeleteOpen(false)} className="flex-1 py-2 border border-gray-300 rounded-lg font-medium">Cancel</button>
-              <button onClick={handleDelete} className="flex-1 py-2 bg-red-700 text-white rounded-lg font-medium">Confirm Delete</button>
+              <button 
+                onClick={() => setIsDeleteOpen(false)} 
+                className="flex-1 py-2 border border-gray-300 rounded-lg font-medium text-black"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleDelete} // Memanggil fungsi tanpa parameter
+                className="flex-1 py-2 bg-red-700 text-white rounded-lg font-medium hover:bg-red-800 transition"
+              >
+                Confirm Delete
+              </button>
             </div>
           </div>
         </div>

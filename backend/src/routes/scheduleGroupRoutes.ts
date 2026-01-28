@@ -16,7 +16,7 @@ router.post("/create-shift", authMiddleware, requireFeature("WORKSCHEDULE"), cre
 router.get("/show/my-schedule-group", authMiddleware, requireFeature("WORKSCHEDULE"), getMyScheduleGroups);
 router.get("/show/my-schedule-group-employee",authMiddleware,requireFeature("WORKSCHEDULE"),getMyScheduleGroupsEmployee);
 router.get("/show/all-schedule-group", authMiddleware, requireFeature("WORKSCHEDULE"), getAllScheduleGroups);
-router.put("/update-shift/:id", authMiddleware, requireFeature("WORKSCHEDULE"), updateScheduleGroup);
+router.patch("/update-shift/:id", authMiddleware, requireFeature("WORKSCHEDULE"), updateScheduleGroup);
 router.delete("/delete-shift/:id", authMiddleware, requireFeature("WORKSCHEDULE"), deleteScheduleGroup);
 
 export default router;

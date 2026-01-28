@@ -160,7 +160,7 @@ export default function AdminCompanyPage() {
                 />
               </div>
               <div className="w-full space-y-2">
-                <label className="text-sm font-bold">Company Name</label>
+                <label className="text-sm font-bold">Radius Attendance</label>
                 <input
                   value={radius}
                   readOnly={hasCompany}
@@ -188,14 +188,14 @@ export default function AdminCompanyPage() {
                   readOnly={hasCompany}
                   onChange={(e) => setLatitude(e.target.value)}
                   className="input"
-                  placeholder="Latitude"
+                  placeholder="-6.175062962395454"
                 />
                 <input
                   value={longitude}
                   readOnly={hasCompany}
                   onChange={(e) => setLongitude(e.target.value)}
                   className="input"
-                  placeholder="Longitude"
+                  placeholder="106.82759875762943"
                 />
               </div>
             </div>

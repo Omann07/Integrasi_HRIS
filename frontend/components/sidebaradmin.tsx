@@ -37,7 +37,7 @@ export default function Sidebar() {
     <div
       className={`${
         isCollapsed ? "w-20" : "w-64"
-      } bg-white h-screen shadow-md flex flex-col justify-between transition-smooth`}
+      } bg-white h-screen shadow-md flex flex-col justify-between pb-8 transition-smooth`}
     >
       {/* Logo + Toggle */}
       <div>

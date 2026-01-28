@@ -26,8 +26,8 @@ export default function WorkScheduleAdminPage() {
   const [rows, setRows] = React.useState<any[]>([]);
   const [shifts, setShifts] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [currentCompanyId, setCurrentCompanyId] = React.useState<string>("");
 
-  // Modal & Selection States
   const [modalType, setModalType] = React.useState<"add" | "edit" | "view" | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<any | null>(null);
   const [selectedRow, setSelectedRow] = React.useState<any | null>(null);
@@ -37,16 +37,21 @@ export default function WorkScheduleAdminPage() {
     try {
       const [scheduleRes, shiftData] = await Promise.all([
         getWorkSchedules(),
-        getMyShifts(), // Ini memanggil service yang mengembalikan res.data.data.map(mapShift)
+        getMyShifts(),
       ]);
   
-      // shiftData sekarang adalah array berisi { id, shift, company }
       setShifts(shiftData); 
       setRows(mapScheduleToUI(scheduleRes || []));
   
-      // PENTING: Set default value jika form masih kosong agar dropdown tidak blank
-      if (shiftData.length > 0 && form.scheduleGroupId === 0) {
-        setForm(prev => ({ ...prev, scheduleGroupId: shiftData[0].id }));
+      // Ambil companyId dari baris tabel pertama jika ada, 
+      // atau dari data shift untuk mendapatkan ID yang sedang login
+      if (scheduleRes && scheduleRes.length > 0) {
+        setCurrentCompanyId(String(scheduleRes[0].companyId));
+      } else if (shiftData && shiftData.length > 0) {
+        // Fallback ke data shift jika tabel schedule masih kosong
+        // Sesuaikan dengan struktur data shift Anda (biasanya item.companyId atau item.company.id)
+        const idFromShift = shiftData[0].companyId || shiftData[0].company?.id;
+        setCurrentCompanyId(String(idFromShift || ""));
       }
     } catch (error) {
       console.error("Gagal mengambil data:", error);
@@ -83,19 +88,25 @@ export default function WorkScheduleAdminPage() {
 
   return (
     <div className="p-6 dashboard-container">
-      {/* HEADER SECTION */}
       <div className="table-box">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold card-title">Work Schedule Information</h2>
           <button
-            onClick={() => { setForm({ ...INITIAL_FORM, scheduleGroupId: shifts[0]?.id || 0 }); setModalType("add"); }}
+            onClick={() => { 
+              // PERBAIKAN: Masukkan currentCompanyId saat klik Add
+              setForm({ 
+                ...INITIAL_FORM, 
+                companyId: currentCompanyId, 
+                scheduleGroupId: shifts[0]?.id || 0 
+              }); 
+              setModalType("add"); 
+            }}
             className="px-3 py-2 rounded text-white font-bold bg-[#2D8EFF] flex items-center gap-2"
           >
             <CirclePlus className="w-4 h-4" /> Add Data
           </button>
         </div>
 
-        {/* TABLE SECTION */}
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm border-collapse">
             <thead>
@@ -132,7 +143,6 @@ export default function WorkScheduleAdminPage() {
         </div>
       </div>
 
-      {/* FORM MODAL (ADD / EDIT) */}
       {(modalType === "add" || modalType === "edit") && (
         <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50 bg-black/50">
           <div className="modal-content max-w-3xl bg-white p-6 rounded-lg shadow-xl">
@@ -142,47 +152,48 @@ export default function WorkScheduleAdminPage() {
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="input-label font-bold block mb-1">Company ID</label>
-                  <input className="input border p-2 w-full rounded" value={form.companyId} onChange={(e) => setForm({...form, companyId: e.target.value})} required />
+                  <label className="input-label font-bold block mb-1 text-gray-700">Company ID</label>
+                  <input 
+                    className="input border p-2 w-full rounded bg-gray-100" 
+                    value={form.companyId} 
+                    readOnly 
+                    required 
+                  />
+                  <small className="text-gray-400 italic">*Terisi otomatis</small>
                 </div>
                 <div>
                   <label className="input-label font-bold block mb-1">Day of Week</label>
                   <select className="input border p-2 w-full rounded" value={form.dayOfWeek} onChange={(e) => setForm({...form, dayOfWeek: e.target.value})}>
-                    {DAY_OPTIONS.map(d => <option key={d}>{d}</option>)}
+                    {DAY_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
                 </div>
                 <div className="md:col-span-2">
                   <label className="input-label font-bold block mb-1">Schedule Group</label>
                   <select 
-                    className="input border p-2 w-full rounded bg-white" // Tambah bg-white agar tidak transparan
+                    className="input border p-2 w-full rounded bg-white" 
                     value={form.scheduleGroupId} 
                     onChange={(e) => setForm({...form, scheduleGroupId: Number(e.target.value)})}
                   >
-                    {/* Jika data sedang loading atau kosong */}
-                    {shifts.length === 0 && <option value="">No shifts available</option>}
-                    
-                    {/* Map data shifts */}
                     {shifts.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.shift} {/* Ini harus s.shift sesuai Mapper */}
-                      </option>
+                      <option key={s.id} value={s.id}>{s.shift}</option>
                     ))}
                   </select>
                 </div>
+                {/* Input Time Start/End & Break tetap sama */}
                 <div className="md:col-span-2">
                   <label className="input-label font-bold block mb-1">Work (Start - End)</label>
                   <div className="flex gap-3 items-center">
-                    <input type="time" className="input border p-2 flex-1 rounded" value={form.startTime} onChange={e => setForm({...form, startTime: e.target.value})} />
+                    <input type="time" className="input border p-2 flex-1 rounded" value={form.startTime} onChange={e => setForm({...form, startTime: e.target.value})} required />
                     <span>to</span>
-                    <input type="time" className="input border p-2 flex-1 rounded" value={form.endTime} onChange={e => setForm({...form, endTime: e.target.value})} />
+                    <input type="time" className="input border p-2 flex-1 rounded" value={form.endTime} onChange={e => setForm({...form, endTime: e.target.value})} required />
                   </div>
                 </div>
                 <div className="md:col-span-2">
                   <label className="input-label font-bold block mb-1">Break (Start - End)</label>
                   <div className="flex gap-3 items-center">
-                    <input type="time" className="input border p-2 flex-1 rounded" value={form.breakStart} onChange={e => setForm({...form, breakStart: e.target.value})} />
+                    <input type="time" className="input border p-2 flex-1 rounded" value={form.breakStart} onChange={e => setForm({...form, breakStart: e.target.value})} required />
                     <span>to</span>
-                    <input type="time" className="input border p-2 flex-1 rounded" value={form.breakEnd} onChange={e => setForm({...form, breakEnd: e.target.value})} />
+                    <input type="time" className="input border p-2 flex-1 rounded" value={form.breakEnd} onChange={e => setForm({...form, breakEnd: e.target.value})} required />
                   </div>
                 </div>
               </div>
@@ -193,51 +204,6 @@ export default function WorkScheduleAdminPage() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* DELETE MODAL */}
-      {deleteTarget && (
-        <div className="fixed inset-0 modal-backdrop flex items-center justify-center z-50 bg-black/50">
-          <div className="bg-white p-6 rounded-lg max-w-sm w-full text-center">
-            <h3 className="text-lg font-bold mb-4">Delete This Data?</h3>
-            <p className="text-gray-500 mb-6">This action cannot be undone.</p>
-            <div className="flex justify-center gap-4">
-              <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 border rounded">Cancel</button>
-              <button onClick={handleDelete} className="px-4 py-2 bg-red-700 text-white rounded">Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
-      {deleteTarget && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] backdrop-blur-sm">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full mx-4 border">
-            <h3 className="text-xl font-bold mb-2">Delete This Schedule?</h3>
-            <p className="text-gray-500 text-sm mb-6">Konfirmasi untuk menghapus jadwal </p>
-            <div className="flex gap-3">
-              <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2 border border-gray-300 rounded-lg font-medium">Cancel</button>
-              <button onClick={handleDelete} className="flex-1 py-2 bg-red-700 text-white rounded-lg font-medium">Confirm Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* VIEW MODAL */}
-      {modalType === "view" && selectedRow && (
-        <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50 bg-black/50">
-          <div className="modal-content max-w-lg bg-white p-6 rounded-lg w-full">
-            <h3 className="modal-title border-b pb-3 mb-6 font-bold text-lg">View Work Schedule</h3>
-            <div className="space-y-4">
-              <p><strong>Company ID:</strong> {selectedRow.companyId}</p>
-              <p><strong>Day:</strong> {selectedRow.dayOfWeek}</p>
-              <p><strong>Shift:</strong> {selectedRow.scheduleGroup}</p>
-              <p><strong>Work Time:</strong> {selectedRow.startTime} - {selectedRow.endTime}</p>
-              <p><strong>Break Time:</strong> {selectedRow.breakStart} - {selectedRow.breakEnd}</p>
-            </div>
-            <div className="mt-8 flex justify-end">
-              <button onClick={() => setModalType(null)} className="px-4 py-2 text-white rounded" style={{ background: "var(--color-primary)" }}>Close</button>
-            </div>
           </div>
         </div>
       )}

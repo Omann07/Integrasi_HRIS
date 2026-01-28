@@ -1,4 +1,4 @@
-// File: C:\Users\LENOVO\Downloads\tes-be\hris-app\app\dashboard\admin\workschedule\page.tsx
+// File: C:\Users\LENOVO\Downloads\Hris\frontend\app\dashboard\admin\workschedule\page.tsx
 import * as entry from '../../../../../../app/dashboard/admin/workschedule/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -77,22 +77,49 @@ export default function LeavesEmployeePage(): JSX.Element {
     setLeaveTypes(data);
   };
 
-  const handleCreate = async () => {
-    try {
-      const fd = new FormData();
-      fd.append("leaveTypeId", form.leaveTypeId);
-      fd.append("startDate", form.startDate);
-      fd.append("endDate", form.endDate);
-      fd.append("reason", form.reason);
-      if (form.attachment) fd.append("attachment", form.attachment);
+  // Cari fungsi handleCreate di page.tsx Anda dan ganti dengan ini:
 
-      await createLeaveRequest(fd);
-      setAddModal(false);
-      fetchLeaves();
-    } catch (err) {
-      alert("Failed to create leave request");
+const handleCreate = async () => {
+  // 1. Validasi Client-side sederhana
+  if (!form.leaveTypeId || !form.startDate || !form.endDate || !form.reason) {
+    alert("Harap isi semua kolom yang wajib diisi.");
+    return;
+  }
+
+  if (new Date(form.endDate) < new Date(form.startDate)) {
+    alert("Tanggal selesai tidak boleh lebih awal dari tanggal mulai.");
+    return;
+  }
+
+  try {
+    const fd = new FormData();
+    fd.append("leaveTypeId", form.leaveTypeId);
+    fd.append("startDate", form.startDate);
+    fd.append("endDate", form.endDate);
+    fd.append("reason", form.reason);
+    if (form.attachment) fd.append("attachment", form.attachment);
+
+    await createLeaveRequest(fd);
+    
+    // Reset form dan tutup modal jika sukses
+    setAddModal(false);
+    setForm({ leaveTypeId: "", startDate: "", endDate: "", reason: "", attachment: null });
+    fetchLeaves();
+    alert("Pengajuan cuti berhasil dikirim!");
+
+  } catch (err: any) {
+    // 2. Menangkap pesan error spesifik dari Backend (Controller)
+    const backendMessage = err.response?.data?.message;
+    
+    if (backendMessage) {
+      alert(`Gagal: ${backendMessage}`);
+    } else {
+      alert("Terjadi kesalahan koneksi ke server.");
     }
-  };
+    
+    console.error("Detail Error:", err.response?.data);
+  }
+};
 
   const handleUpdate = async () => {
     if (!selected) return;
