@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { CirclePlus, Eye, MapPin, Camera, X } from "lucide-react";
 import {
   getAttendances,
+  getAttendanceById,
   createAttendance,
 } from "@/lib/attendance/attendanceService";
 import { AttendanceUI } from "@/lib/attendance/attendanceMapper";
@@ -33,6 +34,20 @@ export default function AttendancePage() {
 
   const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhoto(e.target.files?.[0] || null);
+  };
+
+  const handleShowDetail = async (id: number) => {
+    try {
+      setLoading(true);
+      const detailData = await getAttendanceById(id);
+      setSelectedRow(detailData);
+      setShowDetail(true);
+    } catch (error) {
+      console.error("Failed to fetch detail", error);
+      alert("Gagal mengambil detail absensi");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,12 +127,11 @@ export default function AttendancePage() {
                     </span>
                   </td>
                   <td className="p-3 border text-center">
-                    <button 
-                      onClick={() => { setSelectedRow(row); setShowDetail(true); }}
-                      className="p-2 rounded text-white bg-[#2D8EFF] hover:bg-blue-600 transition-colors"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
+                  <button 
+  onClick={() => handleShowDetail(row.id)} // INI BENAR (memanggil API detail)
+  className="...">
+  <Eye className="w-4 h-4" />
+</button>
                   </td>
                 </tr>
               ))}
@@ -200,7 +214,13 @@ export default function AttendancePage() {
               <div className="flex justify-between border-b pb-2"><strong>Employee:</strong> <span>{selectedRow.fullName} ({selectedRow.employeeCode})</span></div>
               <div className="flex justify-between border-b pb-2"><strong>Company:</strong> <span>{selectedRow.companyName}</span></div>
               <div className="flex justify-between border-b pb-2"><strong>Work Type:</strong> <span>{selectedRow.workType}</span></div>
-              <div className="flex justify-between border-b pb-2"><strong>Location Info:</strong> <span>{selectedRow.locationStatus} ({selectedRow.distance})</span></div>
+              <div className="flex justify-between border-b pb-2">
+                <strong>Location Info:</strong> 
+                <span>
+                  {selectedRow.locationStatus} 
+                  {selectedRow.distance ? ` (${selectedRow.distance})` : ""}
+                </span>
+              </div>
               <div className="flex justify-between border-b pb-2"><strong>Approval:</strong> <span className="font-bold text-blue-600">{selectedRow.approvalStatus}</span></div>
               
               <div className="mt-4">

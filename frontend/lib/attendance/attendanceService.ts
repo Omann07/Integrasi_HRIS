@@ -1,6 +1,7 @@
 import api from "../api";
 import {
   mapAttendancesToUI,
+  mapAttendanceToUI,
   AttendanceUI,
 } from "../attendance/attendanceMapper";
 
@@ -53,6 +54,16 @@ export const createAttendanceByAdmin = async (formData: FormData) => {
       },
     }
   );
+};
+
+// attendanceService.ts
+
+export const getAttendanceById = async (id: number): Promise<AttendanceUI> => {
+  const res = await api.get(`/attendance/show-detail/${id}`);
+  
+  // GUNAKAN mapAttendanceToUI karena data detail adalah satu objek tunggal
+  // res.data.data dari backend adalah { id: 1, ... } bukan [{ id: 1, ... }]
+  return mapAttendanceToUI(res.data.data); 
 };
 
 export const deleteAttendance = async (id: number) => {
