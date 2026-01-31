@@ -3,64 +3,78 @@
 import { useState, ChangeEvent, FormEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams, useRouter } from "next/navigation"; // Import hooks untuk URL & Navigasi
+import { resetPassword } from "@/lib/auth/authService"; // Import service reset
 
 export default function ResetPasswordPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Ambil token dan email dari URL query string
+  const token = searchParams.get("token");
+  const email = searchParams.get("email");
+
   const [formData, setFormData] = useState({
     newPassword: "",
     confirmPassword: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Validasi dasar
+    if (!token || !email) {
+      alert("Link tidak valid atau token kadaluarsa.");
+      return;
+    }
 
     if (formData.newPassword !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
 
-    console.log("Password reset:", formData.newPassword);
-    alert("Password has been reset successfully (dummy).");
+    setLoading(true);
+
+    try {
+      // Panggil backend service
+      await resetPassword({
+        token,
+        email,
+        password: formData.newPassword,
+      });
+
+      alert("Password has been reset successfully! Silakan login kembali.");
+      router.push("/auth/employee/login"); // Redirect ke login
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to reset password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex">
-
       {/* Left side (form) */}
       <div className="flex flex-col justify-center items-center w-full md:w-1/2 p-8 md:p-16">
         <div className="w-full max-w-md space-y-6">
-
-          {/* Title */}
           <div className="flex flex-col items-center text-center">
-            <h2
-              className="text-2xl md:text-3xl font-bold mb-2"
-              style={{ color: "var(--color-accent)" }}
-            >
+            <h2 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: "var(--color-accent)" }}>
               Set a new password
             </h2>
-
             <p className="text-sm" style={{ color: "var(--color-black)" }}>
               Enter your new password below to complete the reset process.
-              Ensure it’s strong and secure.
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-
-            {/* New Password */}
             <div>
-              <label
-                className="block text-sm font-semibold mb-1"
-                style={{ color: "var(--color-black)" }}
-              >
-                New Password
-              </label>
-
+              <label className="block text-sm font-semibold mb-1">New Password</label>
               <input
                 type="password"
                 name="newPassword"
@@ -69,18 +83,12 @@ export default function ResetPasswordPage() {
                 onChange={handleChange}
                 className="input"
                 required
+                disabled={loading}
               />
             </div>
 
-            {/* Confirm Password */}
             <div>
-              <label
-                className="block text-sm font-semibold mb-1"
-                style={{ color: "var(--color-black)" }}
-              >
-                Confirm Password
-              </label>
-
+              <label className="block text-sm font-semibold mb-1">Confirm Password</label>
               <input
                 type="password"
                 name="confirmPassword"
@@ -89,22 +97,17 @@ export default function ResetPasswordPage() {
                 onChange={handleChange}
                 className="input"
                 required
+                disabled={loading}
               />
             </div>
 
-            {/* Submit */}
-            <button type="submit" className="btn-primary">
-              Reset Password
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? "Processing..." : "Reset Password"}
             </button>
           </form>
 
-          {/* Back to login */}
           <div className="text-center">
-            <Link
-              href="/auth/employee/login"
-              className="inline-flex items-center space-x-2 font-semibold hover:underline"
-              style={{ color: "var(--color-primary)" }}
-            >
+            <Link href="/auth/employee/login" className="inline-flex items-center space-x-2 font-semibold hover:underline" style={{ color: "var(--color-primary)" }}>
               <span>⬅️</span>
               <span>Back to Login</span>
             </Link>
@@ -112,21 +115,9 @@ export default function ResetPasswordPage() {
         </div>
       </div>
 
-      {/* Right side (gradient + image) */}
-      <div
-        className="hidden md:flex w-1/2 items-center justify-center relative"
-        style={{ background: "var(--gradient-blue)" }}
-      >
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Image
-            src="/logo1.png"
-            alt="HRIS Illustration"
-            width={600}
-            height={600}
-            className="object-contain max-h-[80%] opacity-90"
-            priority
-          />
-        </div>
+      {/* Right side */}
+      <div className="hidden md:flex w-1/2 items-center justify-center relative" style={{ background: "var(--gradient-blue)" }}>
+        <Image src="/logo1.png" alt="HRIS" width={600} height={600} className="object-contain max-h-[80%] opacity-90" priority />
       </div>
     </div>
   );

@@ -6,6 +6,7 @@
 
 export type AdminDashboardUI = {
   summary: {
+    totalEmployees: number;
     alpha: number;
     onTime: number;
     late: number;
@@ -27,6 +28,7 @@ type EmployeeEntry = {
 
 type AdminDashboardAPI = {
   summary?: {
+    totalEmployees?: number;
     leave?: number;
   };
   lists?: {
@@ -55,6 +57,7 @@ export const mapAdminDashboard = (
 
   return {
     summary: {
+      totalEmployees: data.summary?.totalEmployees ?? 0,
       alpha: alphaList.length,
       onTime: onTimeList.length,
       late: lateList.length,

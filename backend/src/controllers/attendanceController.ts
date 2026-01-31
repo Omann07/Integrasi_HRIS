@@ -980,12 +980,12 @@ export async function getEmployeeDashboard(req: Request, res: Response) {
 
         let onTime = 0;
         let late = 0;
-        let alphaMarked = 0;
+        let alpha = 0;
 
         attendances.forEach(a => {
             if (a.attendanceStatus === "ONTIME") onTime++;
             else if (a.attendanceStatus === "LATE") late++;
-            else if (a.attendanceStatus === "ALPHA") alphaMarked++;
+            else if (a.attendanceStatus === "ALPHA") alpha++;
         });
 
         const totalPresent = onTime + late;
@@ -1037,7 +1037,11 @@ export async function getEmployeeDashboard(req: Request, res: Response) {
         const totalLeaveDays = await countLeaveDaysUntilToday();
 
         // 7. Hitung alpha
-        let alpha = totalWorkingDays - totalPresent - totalLeaveDays;
+        const calculatedAlpha = totalWorkingDays - totalPresent - totalLeaveDays;
+        if (calculatedAlpha > alpha) {
+            alpha = calculatedAlpha; 
+        }
+        
         if (alpha < 0) alpha = 0;
 
         // 8. Hitung total jam kerja

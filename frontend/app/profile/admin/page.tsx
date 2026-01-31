@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CircleArrowLeft, ClipboardList, Building2 } from "lucide-react";
 
+import { mapCompanyToUI, CompanyUI } from "@/lib/company/companyMapper";
 import {
   getAdminProfile,
   updateAdminProfile,
@@ -31,19 +32,29 @@ export default function AdminProfilePage() {
         const res = await getAdminProfile();
         setUser(res.user);
         setStatus(res.status);
-
-        // init form
+  
+        // Inisialisasi form
         setName(res.user.name);
         setEmail(res.user.email);
+  
+        // Jika user punya data company, kita map untuk ambil logoUrl
+        if (res.user.company) {
+          const mappedCompany = mapCompanyToUI(res.user.company);
+          // Kita bisa simpan logoUrl ini ke state baru atau tambahkan ke objek user
+          setCompanyLogo(mappedCompany.logoUrl);
+        }
       } catch (err) {
         console.error("Gagal ambil profile", err);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchProfile();
   }, []);
+  
+  // Tambahkan state baru untuk menyimpan URL Logo
+  const [companyLogo, setCompanyLogo] = useState<string | undefined>(undefined);
 
   /* ==========================
       HANDLER
@@ -230,13 +241,14 @@ export default function AdminProfilePage() {
           {/* RIGHT PANEL */}
           <div className="bg-white rounded-lg card-shadow p-6 text-center">
             <div className="flex flex-col items-center space-y-3">
+            <div className="relative w-24 h-24 mb-2">
               <Image
-                src="/profile1.jpeg"
-                alt="Admin Profile"
-                width={100}
-                height={100}
-                className="rounded-full border"
+                src={companyLogo || "/profile1.jpeg"} // Gunakan logo company jika ada
+                alt="Company Logo"
+                fill
+                className="rounded-full border object-cover"
               />
+            </div>
 
               <h3 className="font-semibold text-lg">{user.name}</h3>
               <p className="text-sm">{user.email}</p>

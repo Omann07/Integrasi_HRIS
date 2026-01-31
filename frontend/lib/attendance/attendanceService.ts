@@ -18,14 +18,19 @@ export const updateAttendanceStatus = async (
   });
 };
 
-/* GET ATTENDANCE */
+export const updateAttendance = async (id: number, formData: FormData) => {
+  return api.patch(`/attendance/update-attendance/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data", // Penting jika ada upload foto bukti
+    },
+  });
+};
+
 export const getAttendances = async (): Promise<AttendanceUI[]> => {
   const res = await api.get("/attendance/show-attendance");
   return mapAttendancesToUI(res.data.data);
 };
 
-
-/* CREATE ATTENDANCE */
 export const createAttendance = async (formData: FormData) => {
   return api.post(
     "/attendance/create-attendance",
@@ -48,4 +53,8 @@ export const createAttendanceByAdmin = async (formData: FormData) => {
       },
     }
   );
+};
+
+export const deleteAttendance = async (id: number) => {
+  return api.delete(`/attendance/delete-attendance/${id}`);
 };

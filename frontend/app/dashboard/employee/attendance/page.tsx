@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { CirclePlus } from "lucide-react";
+import { CirclePlus, Eye, MapPin, Camera, X } from "lucide-react";
 import {
   getAttendances,
   createAttendance,
@@ -11,16 +11,16 @@ import { AttendanceUI } from "@/lib/attendance/attendanceMapper";
 export default function AttendancePage() {
   const [attendanceData, setAttendanceData] = useState<AttendanceUI[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<AttendanceUI | null>(null);
   const [submitError, setSubmitError] = useState("");
   const [loading, setLoading] = useState(false);
 
-
-  // input modal
+  // Form states
   const [workType, setWorkType] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
-  
 
   useEffect(() => {
     fetchAttendance();
@@ -35,149 +35,89 @@ export default function AttendancePage() {
     setPhoto(e.target.files?.[0] || null);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
       setSubmitError("");
       setLoading(true);
-  
+
       const formData = new FormData();
       formData.append("workType", workType);
       formData.append("latitude", latitude);
       formData.append("longitude", longitude);
-  
+
       if (photo) formData.append("proof", photo);
-  
+
       await createAttendance(formData);
-  
-      alert("Attendance berhasil!");
-  
+
       setShowModal(false);
       fetchAttendance();
-  
-      // reset form
+      
+      // Reset form
       setWorkType("");
       setLatitude("");
       setLongitude("");
       setPhoto(null);
-  
     } catch (error: any) {
-  
-      console.log("ERROR RESPONSE:", error?.response);
-  
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed submit attendance";
-  
+      const message = error?.response?.data?.message || error?.message || "Failed submit attendance";
       setSubmitError(message);
-  
     } finally {
       setLoading(false);
     }
   };
-  
-  
 
   return (
     <div className="p-6 dashboard-container">
-      {/* CARD */}
-      <div className="card card-shadow border border-gray-200">
-        {/* HEADER */}
-        <div className="flex justify-between items-center px-5 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-black">
-            Attendance Information
-          </h2>
-
+      {/* HEADER & TABLE SECTION - Persis Admin */}
+      <div className="table-box">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold card-title">Attendance Information</h2>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center font-bold px-4 py-2 rounded-md text-white"
-            style={{ background: "#2D8EFF" }}
+            className="px-3 py-2 rounded text-white font-bold bg-[#2D8EFF] flex items-center gap-2"
           >
-            <CirclePlus className="w-4 h-4 mr-2" /> Add Data
+            <CirclePlus className="w-4 h-4" /> Add Data
           </button>
         </div>
 
-        {/* TABLE */}
+        {/* TABLE SECTION */}
         <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse text-sm">
-            <thead
-              className="text-white text-center font-bold"
-              style={{ background: "var(--color-primary)" }}
-            >
-              <tr>
-                <th className="p-3 border w-12">No.</th>
+          <table className="min-w-full text-sm border-collapse">
+            <thead>
+              <tr className="text-white text-center font-bold" style={{ background: "var(--color-primary)" }}>
+                <th className="p-3 border">No.</th>
                 <th className="p-3 border">Full Name</th>
                 <th className="p-3 border">Employee ID</th>
-                <th className="p-3 border">Company</th>
-                <th className="p-3 border">Work Schedule</th>
                 <th className="p-3 border">Date</th>
-                <th className="p-3 border">Check-In</th>
-                <th className="p-3 border">Check-Out</th>
-                <th className="p-3 border">Work Type</th>
-                <th className="p-3 border">Location</th>
-                <th className="p-3 border">Latitude</th>
-                <th className="p-3 border">Longitude</th>
-                <th className="p-3 border">Distance</th>
-                <th className="p-3 border">Attendance</th>
-                <th className="p-3 border">Proof</th>
+                <th className="p-3 border">In/Out</th>
                 <th className="p-3 border">Status</th>
+                <th className="p-3 border">Action</th>
               </tr>
             </thead>
-
             <tbody>
               {attendanceData.map((row, i) => (
-                <tr
-                  key={row.id}
-                  className="border text-center hover:bg-gray-100 bg-white"
-                >
-                  <td className="p-3 border">{i + 1}</td>
+                <tr key={row.id} className="border hover:bg-gray-50 bg-white">
+                  <td className="p-3 border text-center">{i + 1}</td>
                   <td className="p-3 border">{row.fullName}</td>
-                  <td className="p-3 border">{row.employeeCode}</td>
-                  <td className="p-3 border">{row.companyName}</td>
-                  <td className="p-3 border">{row.shiftName}</td>
-                  <td className="p-3 border">{row.date}</td>
-                  <td className="p-3 border">
-                    {row.checkInTime ?? "-"}
+                  <td className="p-3 border text-center">{row.employeeCode}</td>
+                  <td className="p-3 border text-center">{row.date}</td>
+                  <td className="p-3 border text-center">
+                    <span className="text-green-600 font-bold">{row.checkInTime || "--:--"}</span>
+                    <span className="mx-1">/</span>
+                    <span className="text-red-600 font-bold">{row.checkOutTime || "--:--"}</span>
                   </td>
-                  <td className="p-3 border">
-                    {row.checkOutTime ?? "-"}
-                  </td>
-                  <td className="p-3 border">{row.workType}</td>
-                  <td className="p-3 border">
-                    {row.locationStatus ?? "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {row.latitude ?? "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {row.longitude ?? "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {row.distance ?? "-"}
-                  </td>
-                  <td className="p-3 border">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        row.attendanceStatus === "ALPHA"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-green-100 text-green-700"
-                      }`}
-                    >
+                  <td className="p-3 border text-center">
+                    <span className={`px-2 py-1 rounded text-[10px] font-bold ${row.attendanceStatus === "ALPHA" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
                       {row.attendanceStatus}
                     </span>
                   </td>
-                  <td className="p-3 border">
-                    {row.proofUrl ? (
-                      <img
-                        src={row.proofUrl}
-                        className="w-10 h-10 rounded object-cover mx-auto border"
-                      />
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                  <td className="p-3 border">
-                    {row.approvalStatus}
+                  <td className="p-3 border text-center">
+                    <button 
+                      onClick={() => { setSelectedRow(row); setShowDetail(true); }}
+                      className="p-2 rounded text-white bg-[#2D8EFF] hover:bg-blue-600 transition-colors"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -186,87 +126,94 @@ export default function AttendancePage() {
         </div>
       </div>
 
-      {/* MODAL */}
+      {/* ADD MODAL - Sama persis layout Admin */}
       {showModal && (
-        <div className="fixed inset-0 modal-backdrop flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-[900px] shadow-xl overflow-hidden">
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-bold text-black">
-                Add Attendance Employee
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6 p-6">
-            {submitError && (
-              <div className="mx-6 mt-4 bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded-md text-sm">
-                {submitError}
-              </div>
-            )}
-              <div className="space-y-5">
+        <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50 bg-black/50">
+          <div className="modal-content max-w-3xl bg-white p-6 rounded-lg shadow-xl w-full">
+            <h3 className="modal-title border-b pb-3 mb-6 font-bold text-lg">Add Attendance</h3>
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="font-bold">Work Type</label>
-                  <div className="mt-2 space-y-2">
-                    <label className="flex gap-2">
-                      <input
-                        type="radio"
-                        value="WFO"
-                        checked={workType === "WFO"}
-                        onChange={() => setWorkType("WFO")}
-                      />
-                      WFO
-                    </label>
-                    <label className="flex gap-2">
-                      <input
-                        type="radio"
-                        value="WFA"
-                        checked={workType === "WFA"}
-                        onChange={() => setWorkType("WFA")}
-                      />
-                      WFA
-                    </label>
+                  <label className="input-label font-bold block mb-2">Work Type</label>
+                  <select 
+                    className="input border p-2 w-full rounded bg-white"
+                    value={workType}
+                    onChange={(e) => setWorkType(e.target.value)}
+                    required
+                  >
+                    <option value="">Select Type</option>
+                    <option value="WFO">WFO (Office)</option>
+                    <option value="WFA">WFA (Anywhere)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="input-label font-bold block mb-2">Proof Photo</label>
+                  <input type="file" className="input border p-1 w-full rounded text-sm" onChange={handlePhoto} />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="input-label font-bold block mb-2 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-red-500" /> Location Coordinates
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input 
+                      placeholder="Latitude" 
+                      className="input border p-2 rounded" 
+                      value={latitude} 
+                      onChange={(e) => setLatitude(e.target.value)} 
+                      required 
+                    />
+                    <input 
+                      placeholder="Longitude" 
+                      className="input border p-2 rounded" 
+                      value={longitude} 
+                      onChange={(e) => setLongitude(e.target.value)} 
+                      required 
+                    />
                   </div>
                 </div>
-
-                <div>
-                  <label className="font-bold">Take Photo</label>
-                  <input type="file" onChange={handlePhoto} />
-                </div>
               </div>
 
-              <div>
-                <label className="font-bold">Location</label>
-                <iframe
-                  src={`https://www.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`}
-                  className="w-full h-40 border"
-                />
-                <div className="grid grid-cols-2 gap-4 mt-3">
-                  <input
-                    placeholder="Latitude"
-                    value={latitude}
-                    onChange={(e) => setLatitude(e.target.value)}
-                    className="input"
-                  />
-                  <input
-                    placeholder="Longitude"
-                    value={longitude}
-                    onChange={(e) => setLongitude(e.target.value)}
-                    className="input"
-                  />
-                </div>
+              {submitError && <p className="text-red-500 text-xs mt-4">{submitError}</p>}
+
+              <div className="flex justify-end gap-3 mt-8">
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 border rounded font-bold">Cancel</button>
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="px-4 py-2 text-white rounded font-bold" 
+                  style={{ background: "var(--color-primary)" }}
+                >
+                  {loading ? "Saving..." : "Add Attendance"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DETAIL MODAL (VIEW) */}
+      {showDetail && selectedRow && (
+        <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50 bg-black/50">
+          <div className="modal-content max-w-lg bg-white p-6 rounded-lg shadow-xl w-full">
+            <h3 className="modal-title border-b pb-3 mb-6 font-bold text-lg">Attendance Detail</h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between border-b pb-2"><strong>Employee:</strong> <span>{selectedRow.fullName} ({selectedRow.employeeCode})</span></div>
+              <div className="flex justify-between border-b pb-2"><strong>Company:</strong> <span>{selectedRow.companyName}</span></div>
+              <div className="flex justify-between border-b pb-2"><strong>Work Type:</strong> <span>{selectedRow.workType}</span></div>
+              <div className="flex justify-between border-b pb-2"><strong>Location Info:</strong> <span>{selectedRow.locationStatus} ({selectedRow.distance})</span></div>
+              <div className="flex justify-between border-b pb-2"><strong>Approval:</strong> <span className="font-bold text-blue-600">{selectedRow.approvalStatus}</span></div>
+              
+              <div className="mt-4">
+                <strong className="block mb-2">Proof:</strong>
+                {selectedRow.proofUrl ? (
+                  <img src={selectedRow.proofUrl} className="w-full h-48 object-cover rounded-lg border" alt="proof" />
+                ) : (
+                  <div className="w-full h-20 bg-gray-100 flex items-center justify-center rounded text-gray-400 italic">No photo proof</div>
+                )}
               </div>
             </div>
-
-            <div className="flex justify-end gap-3 px-6 py-4 border-t">
-              <button onClick={() => setShowModal(false)}>
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="px-5 py-2 rounded-md text-white font-bold"
-                style={{ background: "var(--color-primary)" }}
-              >
-                Add
-              </button>
+            <div className="mt-8 flex justify-end">
+              <button onClick={() => setShowDetail(false)} className="px-6 py-2 text-white rounded font-bold" style={{ background: "var(--color-primary)" }}>Close</button>
             </div>
           </div>
         </div>

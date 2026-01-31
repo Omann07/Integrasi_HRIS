@@ -52,3 +52,7 @@ export const updateLeaveRequest = async (
 export const cancelLeaveRequest = async (id: number) => {
   return api.patch(`/leave-requests/cancel-leave-request/${id}`);
 };
+
+export const deleteLeaveRequest = async (id: number) => {
+  return api.delete(`/leave-requests/delete-leave-request/${id}`);
+};

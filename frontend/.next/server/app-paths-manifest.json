@@ -1,9 +1,7 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/auth/employee/set-new-password/page": "app/auth/employee/set-new-password/page.js",
-  "/dashboard/admin/employee/page": "app/dashboard/admin/employee/page.js",
-  "/dashboard/admin/shift/page": "app/dashboard/admin/shift/page.js",
-  "/dashboard/admin/leave-request/page": "app/dashboard/admin/leave-request/page.js",
-  "/dashboard/admin/workschedule/page": "app/dashboard/admin/workschedule/page.js",
-  "/dashboard/admin/leave-type/page": "app/dashboard/admin/leave-type/page.js"
+  "/profile/employee/page": "app/profile/employee/page.js",
+  "/auth/employee/login/page": "app/auth/employee/login/page.js",
+  "/dashboard/employee/page": "app/dashboard/employee/page.js",
+  "/dashboard/admin/attendance/page": "app/dashboard/admin/attendance/page.js",
+  "/dashboard/employee/attendance/page": "app/dashboard/employee/attendance/page.js"
 }

@@ -6,6 +6,7 @@ import {
   getLeaveRequests,
   approveLeaveRequest,
   rejectLeaveRequest,
+  deleteLeaveRequest,
 } from "@/lib/leave/leaveRequestService";
 import { LeaveUI } from "@/lib/leave/leaveRequestMapper";
 
@@ -53,6 +54,20 @@ export default function LeavesAdminPage() {
 
     await rejectLeaveRequest(leave.id, reason);
     fetchLeaves(); // Refresh data
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteLeave) return;
+  
+    try {
+      await deleteLeaveRequest(deleteLeave.id);
+      setDeleteLeave(null); // Tutup modal
+      fetchLeaves(); // Refresh data tabel
+      alert("Leave request deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete leave:", error);
+      alert("Failed to delete request.");
+    }
   };
 
   const openView = (leave: LeaveUI) => {
@@ -310,23 +325,25 @@ export default function LeavesAdminPage() {
         {/* ================= DELETE MODAL ================= */}
         {deleteLeave && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] backdrop-blur-sm">
-              <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full mx-4 border">
-                  <h3 className="text-xl font-bold mb-2">Delete This Leave Request?</h3>
-                  <p className="text-gray-500 text-sm mb-6">Konfirmasi untuk menghapus data pengajuan cuti.</p>
-                    <div className="flex gap-3">
-                        <button 
-                          onClick={() => setDeleteLeave(null)} 
-                          className="flex-1 py-2 border border-gray-300 rounded-lg font-medium"
-                        >
-                          Cancel
-                        </button>
-                        <button 
-                          onClick={() => setDeleteLeave(null)} 
-                          className="flex-1 py-2 bg-red-700 text-white rounded-lg font-medium"
-                        >
-                          Confirm Delete
-                        </button>
-                    </div>
+            <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full mx-4 border">
+              <h3 className="text-xl font-bold mb-2">Delete This Leave Request?</h3>
+              <p className="text-gray-500 text-sm mb-6">
+                Konfirmasi untuk menghapus data pengajuan cuti milik <strong>{deleteLeave.name}</strong>.
+              </p>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setDeleteLeave(null)} 
+                  className="flex-1 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-100 transition"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={confirmDelete} // Panggil fungsi confirmDelete di sini
+                  className="flex-1 py-2 bg-red-700 text-white rounded-lg font-medium hover:bg-red-800 transition"
+                >
+                  Confirm Delete
+                </button>
+              </div>
             </div>
           </div>
         )}

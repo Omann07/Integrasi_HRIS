@@ -5,6 +5,7 @@ import { calculateDistance, formatDistance } from "@/lib/utils/distance";
 ===================================== */
 export interface AttendanceAPI {
   id: number;
+  employeeId: number; // Pastikan ini ada di response backend
   date: string;
   checkInTime: string | null;
   checkOutTime: string | null;
@@ -36,13 +37,16 @@ export interface AttendanceAPI {
 ===================================== */
 export interface AttendanceUI {
   id: number;
+  employeeId: number;
 
   fullName: string;
   employeeCode: string;
   companyName: string;
   shiftName: string;
 
-  date: string;
+  date: string;      // Untuk tampilan tabel (dd/mm/yyyy)
+  rawDate: string;   // Untuk isi form input date (yyyy-mm-dd)
+  
   checkInTime: string | null;
   checkOutTime: string | null;
   workType: string;
@@ -61,16 +65,19 @@ export interface AttendanceUI {
 const formatToLocalTime = (str: string | null) => {
   if (!str || str === "-") return "-";
 
-  // CEK APAKAH FORMATNYA JAM MURNI (HH:mm:ss)
-  // Karena backend Anda mengirim req.formatWIB(..., "HH:mm:ss")
+  // Jika formatnya jam murni "HH:mm:ss"
   if (str.includes(":") && str.length <= 8) {
-    return str.substring(0, 5); // Mengambil "HH:mm" dari "HH:mm:ss"
+    return str.substring(0, 5); // Ambil HH:mm
   }
 
-  // Jika formatnya ISO Date lengkap
+  // Jika formatnya ISO Date
   const date = new Date(str);
   if (isNaN(date.getTime())) return str;
-  return date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleTimeString("id-ID", { 
+    hour: "2-digit", 
+    minute: "2-digit", 
+    hour12: false 
+  }).replace(".", ":");
 };
 
 export const mapAttendanceToUI = (
@@ -95,17 +102,26 @@ export const mapAttendanceToUI = (
     distance = formatDistance(meter);
   }
 
+  // Persiapkan Raw Date untuk input HTML (yyyy-mm-dd)
+  const dateObj = new Date(data.date);
+  const rawDate = !isNaN(dateObj.getTime()) 
+    ? dateObj.toISOString().split("T")[0] 
+    : "";
+
   return {
     id: data.id,
+    employeeId: data.employeeId, // Diperlukan agar dropdown terpilih otomatis
     fullName: data.employee?.fullName ?? "-",
     employeeCode: data.employee?.employeeCode ?? "-",
     companyName: data.employee?.company?.companyName ?? "-",
     shiftName: data.employee?.scheduleGroup?.nameOfShift ?? "-",
 
-    // Tampilkan tanggal yang lebih rapi
+    // Tampilan Tabel: 31/01/2026
     date: data.date ? new Date(data.date).toLocaleDateString("id-ID") : "-",
     
-    // Gunakan helper untuk jam
+    // Nilai Input Form: 2026-01-31
+    rawDate: rawDate,
+    
     checkInTime: formatToLocalTime(data.checkInTime),
     checkOutTime: formatToLocalTime(data.checkOutTime),
     
@@ -120,11 +136,9 @@ export const mapAttendanceToUI = (
   };
 };
 
-/* =====================================
-   MAPPER (ARRAY) ✅ PENTING
-===================================== */
 export const mapAttendancesToUI = (
   data: AttendanceAPI[]
 ): AttendanceUI[] => {
+  if (!data) return [];
   return data.map(mapAttendanceToUI);
 };

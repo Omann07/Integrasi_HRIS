@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { Bell, Search, ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { logout, getEmployeeProfile } from "@/lib//auth/authService"; 
+import { logout, getEmployeeProfile, getAdminProfile} from "@/lib//auth/authService"; 
 import { deleteCookie } from "cookies-next";
+import { mapCompanyToUI } from "@/lib/company/companyMapper";
 
 interface NavbarProps {
   role: "admin" | "employee";
@@ -26,21 +27,35 @@ export default function Navbar({ role }: NavbarProps) {
   useEffect(() => {
     const fetchNavbarData = async () => {
       try {
-        const res = await getEmployeeProfile();
-        // Mengikuti struktur data yang kamu gunakan di halaman profil
-        if (res.user?.Employee?.length > 0) {
-          const emp = res.user.Employee[0];
-          if (emp.photo) {
-            setProfilePhoto(`http://localhost:8000/uploads/photoEmployee/${emp.photo}`);
+        if (role === "admin") {
+          // Ambil profil admin
+          const res = await getAdminProfile();
+          
+          // Cek jika admin memiliki data company
+          if (res.user?.company) {
+            // Gunakan mapper untuk mendapatkan URL logo yang lengkap
+            const mappedCompany = mapCompanyToUI(res.user.company);
+            if (mappedCompany.logoUrl) {
+              setProfilePhoto(mappedCompany.logoUrl);
+            }
+          }
+        } else {
+          // Logika lama untuk Employee
+          const res = await getEmployeeProfile();
+          if (res.user?.Employee?.length > 0) {
+            const emp = res.user.Employee[0];
+            if (emp.photo) {
+              setProfilePhoto(`http://localhost:8000/uploads/photoEmployee/${emp.photo}`);
+            }
           }
         }
       } catch (err) {
-        console.error("Gagal memuat foto di navbar:", err);
+        console.error("Gagal memuat data di navbar:", err);
       }
     };
-
+  
     fetchNavbarData();
-  }, []);
+  }, [role]); // Tambahkan role sebagai dependency
 
   // 🔹 Efek untuk menentukan Judul Halaman
   useEffect(() => {
@@ -161,7 +176,9 @@ export default function Navbar({ role }: NavbarProps) {
             <img
               src={profilePhoto || "/noprofile.jpg"}
               alt="User Avatar"
-              className="w-9 h-9 rounded-full border-2 border-white shadow object-cover"
+              // Gunakan object-contain jika ingin logo terlihat utuh, 
+              // atau object-cover jika ingin memenuhi lingkaran
+              className="w-9 h-9 rounded-full border bg-white shadow object-contain p-1" 
             />
             <ChevronDown className="w-4 h-4 text-gray-600" />
           </button>
