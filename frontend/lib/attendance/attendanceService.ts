@@ -5,8 +5,15 @@ import {
   AttendanceUI,
 } from "../attendance/attendanceMapper";
 
-export const getAttendancesAdmin = async (): Promise<AttendanceUI[]> => {
-  const res = await api.get("/attendance/show-attendance");
+// Tambahkan parameter default agar tidak error jika dipanggil tanpa argumen
+export const getAttendancesAdmin = async (
+  page: number = 1, 
+  limit: number = 20, 
+  search: string = ""
+): Promise<AttendanceUI[]> => {
+  const res = await api.get("/attendance/show-attendance", {
+    params: { page, limit, search } // Sesuai dengan .rest: ?search=xxx
+  });
   return mapAttendancesToUI(res.data.data);
 };
 
@@ -27,10 +34,13 @@ export const updateAttendance = async (id: number, formData: FormData) => {
   });
 };
 
-export const getAttendances = async (): Promise<AttendanceUI[]> => {
-  const res = await api.get("/attendance/show-attendance");
+export const getAttendances = async (search: string = ""): Promise<AttendanceUI[]> => {
+  const res = await api.get("/attendance/show-attendance", {
+    params: { search }
+  });
   return mapAttendancesToUI(res.data.data);
 };
+
 
 export const createAttendance = async (formData: FormData) => {
   return api.post(

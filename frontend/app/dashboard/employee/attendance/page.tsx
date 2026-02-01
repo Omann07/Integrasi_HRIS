@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { CirclePlus, Eye, MapPin, Camera, X } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   getAttendances,
   getAttendanceById,
@@ -10,6 +11,8 @@ import {
 import { AttendanceUI } from "@/lib/attendance/attendanceMapper";
 
 export default function AttendancePage() {
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search") || "";
   const [attendanceData, setAttendanceData] = useState<AttendanceUI[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
@@ -24,13 +27,18 @@ export default function AttendancePage() {
   const [photo, setPhoto] = useState<File | null>(null);
 
   useEffect(() => {
-    fetchAttendance();
-  }, []);
+    const delay = setTimeout(() => {
+      fetchAttendance();
+    }, 300);
+  
+    return () => clearTimeout(delay);
+  }, [search]);
+  
 
   const fetchAttendance = async () => {
-    const res = await getAttendances();
+    const res = await getAttendances(search);
     setAttendanceData(res);
-  };
+  };  
 
   const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhoto(e.target.files?.[0] || null);

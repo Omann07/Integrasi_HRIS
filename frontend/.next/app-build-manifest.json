@@ -11,26 +11,6 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/dashboard/employee/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/employee/page.js"
-    ],
-    "/dashboard/employee/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/employee/layout.js"
-    ],
-    "/auth/admin/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/auth/admin/login/page.js"
-    ],
-    "/auth/employee/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/auth/employee/login/page.js"
-    ],
     "/dashboard/admin/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -51,20 +31,30 @@
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/admin/attendance/page.js"
     ],
+    "/auth/employee/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/auth/employee/login/page.js"
+    ],
+    "/auth/admin/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/auth/admin/login/page.js"
+    ],
+    "/dashboard/employee/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/employee/page.js"
+    ],
+    "/dashboard/employee/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/employee/layout.js"
+    ],
     "/dashboard/employee/attendance/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/employee/attendance/page.js"
-    ],
-    "/dashboard/employee/workschedule/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/employee/workschedule/page.js"
-    ],
-    "/dashboard/admin/workschedule/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/admin/workschedule/page.js"
     ]
   }
 }

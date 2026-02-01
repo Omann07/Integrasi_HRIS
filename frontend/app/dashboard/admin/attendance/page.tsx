@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Eye, Plus, X, Camera, Trash2, Pencil, Trash, Edit } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   getAttendancesAdmin,
   getAttendanceById,
@@ -14,6 +15,8 @@ import { getEmployees } from "@/lib/employee/employeeService";
 import { AttendanceUI, } from "@/lib/attendance/attendanceMapper";
 
 export default function AttendanceAdminPage() {
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search") || "";
   const [attendanceList, setAttendanceList] = useState<AttendanceUI[]>([]);
   const [employeeList, setEmployeeList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,19 +46,39 @@ export default function AttendanceAdminPage() {
   const fetchInitialData = async () => {
     setLoading(true);
     try {
-      const [attendances, employeesData] = await Promise.all([
-        getAttendancesAdmin(),
-        getEmployees(),
-      ]);
-      setAttendanceList(attendances);
+      const employeesData = await getEmployees();
       setEmployeeList(employeesData.data || employeesData);
+  
+      // attendance pakai fungsi search-aware
+      await fetchAttendances();
+  
     } catch (error) {
       console.error("Failed to fetch initial data:", error);
     } finally {
       setLoading(false);
     }
   };
+  
+  const fetchAttendances = async () => {
+  setLoading(true);
+  try {
+    // Kirim search ke service
+    const data = await getAttendancesAdmin(1, 20, search); 
+    setAttendanceList(data);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchAttendances();
+    }, 300); 
+  
+    return () => clearTimeout(delayDebounceFn);
+  }, [search]);
   /* ================= HANDLERS ================= */
 
   const handleOpenAdd = () => {

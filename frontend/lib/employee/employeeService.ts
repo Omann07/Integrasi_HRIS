@@ -18,11 +18,13 @@ export const updateMyEmployeeProfile = async (data: FormData) => {
   return res.data;
 };
 
-// GET ALL EMPLOYEES
-export const getEmployees = async () => {
-  const res = await api.get("/employee/show/my-employees");
+export const getEmployees = async (search: string = "") => {
+  const res = await api.get("/employee/show/my-employees", {
+    params: { search }
+  });
   return res.data;
 };
+
 
 // CREATE EMPLOYEE (Fungsi Baru)
 export const createEmployee = async (data: any) => {

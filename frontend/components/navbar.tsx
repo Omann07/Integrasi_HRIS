@@ -14,9 +14,18 @@ interface NavbarProps {
 export default function Navbar({ role }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [pageTitle, setPageTitle] = useState("Dashboard");
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null); // State untuk foto
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   
   const pathname = usePathname();
+  const showSearchBar =
+  (role === "admin" &&
+    (pathname.includes("/dashboard/admin/employee") ||
+     pathname.includes("/dashboard/admin/attendance"))) ||
+
+  (role === "employee" &&
+    pathname.includes("/dashboard/employee/attendance"));
+
   const router = useRouter();
 
   // 🔹 Sembunyikan Navbar di halaman Profile & Company
@@ -150,17 +159,23 @@ export default function Navbar({ role }: NavbarProps) {
         {pageTitle}
       </h2>
 
-      {/* Tengah: Pencarian */}
+      {showSearchBar && (
       <div className="flex-1 flex justify-center">
-        <div className="relative w-full max-w-sm">
-          <input
-            type="text"
-            placeholder="Search"
-            className="w-full border rounded-full pl-8 pr-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <Search className="absolute right-3 top-2 w-4 text-gray-400" />
-        </div>
+        <input
+          type="text"
+          placeholder="Search name..."
+          value={searchTerm}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSearchTerm(value);
+
+            router.replace(`${pathname}?search=${encodeURIComponent(value)}`);
+          }}
+          className="relative max-w-sm w-full border rounded-full pl-4 pr-10 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
       </div>
+      )}
+
 
       {/* Kanan: Notifikasi + Avatar */}
       <div className="flex items-center space-x-4">

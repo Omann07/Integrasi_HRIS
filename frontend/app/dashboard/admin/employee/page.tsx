@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Eye, Edit, Trash, CirclePlus, CircleArrowLeft, Pencil, X, Upload, Download, History } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+
 import Image from "next/image";
 import { 
   getEmployees, 
@@ -12,10 +14,12 @@ import {
   importEmployeesCsv,
 } from "@/lib/employee/employeeService";
 import { getMyShifts } from "@/lib/shift/shiftService";
-// Pastikan path import mapper ini sesuai dengan lokasi file Anda
 import { mapEmployeeToUI, mapUIToEmployeePayload, UIEmployee } from "@/lib/employee/employeeMapper";
 
 export default function EmployeePage() {
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search") || "";
+
   const [employeeList, setEmployeeList] = useState<UIEmployee[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<UIEmployee | null>(null);
   const [editEmployee, setEditEmployee] = useState<any | null>(null);
@@ -42,18 +46,22 @@ export default function EmployeePage() {
   });
 
   useEffect(() => {
-    const initLoad = async () => {
+    const delay = setTimeout(async () => {
       setLoading(true);
-      await fetchScheduleGroups();
       await fetchEmployees();
       setLoading(false);
-    };
-    initLoad();
-  }, []);
+    }, 300);
+  
+    return () => clearTimeout(delay);
+  }, [search]);
+  
+  useEffect(() => {
+    fetchScheduleGroups();
+  }, []);  
 
   const fetchEmployees = async () => {
     try {
-      const res = await getEmployees();
+      const res = await getEmployees(search);
       const rawData = res.data ?? res;
       // Menggunakan Mapper yang Anda sediakan
       setEmployeeList(rawData.map(mapEmployeeToUI));
